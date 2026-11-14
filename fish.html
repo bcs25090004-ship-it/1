@@ -105,6 +105,7 @@
             justify-content: center;
             transition: all 0.55s cubic-bezier(0.22, 1, 0.36, 1);
             z-index: 10;
+            pointer-events: none;
         }
 
         /* The Transparent Acrylic Block */
@@ -138,6 +139,8 @@
                 0 18px 35px rgba(0, 0, 0, 0.35),
                 0 0 1px 1px rgba(255, 255, 255, 0.22);
             cursor: pointer;
+            pointer-events: auto;
+            touch-action: manipulation;
             overflow: hidden;
             transition: all 0.55s cubic-bezier(0.22, 1, 0.36, 1);
             transform-style: preserve-3d;
@@ -151,7 +154,7 @@
 
         .gadget-wrapper.fullscreen-mode .acrylic-prism {
             width: min(92vw, 760px);
-            height: min(76vh, 560px);
+            height: min(72vh, 520px);
             border-radius: 18px;
             background: linear-gradient(
                 145deg,
@@ -397,12 +400,52 @@
         }
 
         /* Floating Control Pill */
+        .control-nav {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            pointer-events: auto;
+            max-width: 96vw;
+        }
+
+        @media (min-width: 640px) {
+            .control-nav {
+                bottom: 1.5rem;
+            }
+        }
+
         .control-pill {
-            background: rgba(16, 22, 26, 0.68);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+            background: rgba(16, 22, 26, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+            pointer-events: auto;
+        }
+
+        .pill-btn {
+            transition: all 0.18s ease;
+            touch-action: manipulation;
+            pointer-events: auto;
+        }
+        .pill-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+        .pill-btn:active {
+            transform: scale(0.93);
+        }
+
+        .color-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 9999px;
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+            touch-action: manipulation;
+            pointer-events: auto;
         }
 
         .pill-btn {
@@ -459,7 +502,7 @@
         </div>
 
         <!-- 3D-Printed Sage/Mint Electronics Base Stand -->
-        <div class="desk-stand-assembly" aria-hidden="true">
+        <div class="desk-stand-assembly pointer-events-none" aria-hidden="true">
             <div class="stand-lid">
                 <div class="stand-slot-bezel"></div>
             </div>
@@ -473,28 +516,28 @@
         </div>
     </main>
 
-    <!-- Subtle Interaction Hint -->
-    <div id="hintText" class="fixed bottom-20 sm:bottom-24 z-20 text-white/55 text-[11px] sm:text-xs tracking-wide pointer-events-none transition-opacity duration-700 text-center px-4">
+    <!-- Subtle Interaction Hint & Status Toast -->
+    <div id="hintText" class="fixed bottom-20 sm:bottom-24 z-30 text-white/65 text-[11px] sm:text-xs tracking-wide pointer-events-none transition-opacity duration-500 text-center px-4">
         Tap glass to drop ASCII pellets &bull; Double-tap to knock
     </div>
 
-    <!-- Minimalist Floating Control Pill -->
-    <nav class="fixed bottom-4 sm:bottom-6 z-30 max-w-[95vw]">
+    <!-- Minimalist Floating Control Pill (High z-index & touch-friendly) -->
+    <nav class="control-nav">
         <div class="control-pill rounded-full px-3 py-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2.5 text-white/90 text-xs sm:text-sm overflow-x-auto">
             
             <!-- Feed Button -->
-            <button id="btnFeed" class="pill-btn px-3 py-1.5 rounded-full bg-white/10 font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <button type="button" id="btnFeed" class="pill-btn px-3 py-1.5 rounded-full bg-white/10 font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
                 <span class="mono-font text-[#38F6FF] font-bold" id="feedIcon">*</span>
                 <span>Feed</span>
             </button>
 
-            <!-- Add / Remove Mini Baby Fish -->
-            <div class="flex items-center bg-white/5 rounded-full border border-white/10 p-0.5">
-                <button id="btnAddFish" class="pill-btn px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap cursor-pointer" title="Add mini ASCII fish">
-                    + Fish
+            <!-- Add / Remove ASCII Fish (Up to 20) -->
+            <div class="flex items-center bg-white/10 rounded-full border border-white/15 p-0.5 shrink-0">
+                <button type="button" id="btnAddFish" class="pill-btn px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 whitespace-nowrap cursor-pointer text-white" title="Add ASCII fish (Max 20)">
+                    <span>+ Fish</span>
+                    <span id="fishCountLabel" class="mono-font text-[11px] text-[#38F6FF] font-bold">(1/20)</span>
                 </button>
-                <span id="fishCountLabel" class="mono-font text-[11px] text-white/60 px-1.5">1</span>
-                <button id="btnRemoveFish" class="pill-btn px-2 py-1 rounded-full text-xs font-medium text-white/70 hover:text-white cursor-pointer" title="Remove extra fish">
+                <button type="button" id="btnRemoveFish" class="pill-btn px-2.5 py-1 rounded-full text-xs font-bold text-white/75 hover:text-white cursor-pointer" title="Remove extra fish">
                     &minus;
                 </button>
             </div>
@@ -503,7 +546,7 @@
             <div class="w-px h-4 bg-white/15 shrink-0"></div>
 
             <!-- View Mode Toggle -->
-            <button id="btnViewMode" class="pill-btn px-3 py-1.5 rounded-full bg-white/5 border border-white/10 font-medium whitespace-nowrap cursor-pointer">
+            <button type="button" id="btnViewMode" class="pill-btn px-3 py-1.5 rounded-full bg-white/5 border border-white/10 font-medium whitespace-nowrap cursor-pointer">
                 <span id="viewModeText">Fullscreen Glass</span>
             </button>
 
@@ -512,17 +555,17 @@
 
             <!-- Fish Phosphor Color Swatches -->
             <div class="flex items-center gap-2 px-1 shrink-0" title="OLED Phosphor Color">
-                <button class="color-dot active" data-palette="cyan" style="background-color: #38F6FF; color: #38F6FF;" aria-label="Cyan OLED"></button>
-                <button class="color-dot" data-palette="amber" style="background-color: #FFB833; color: #FFB833;" aria-label="Amber Retro"></button>
-                <button class="color-dot" data-palette="mint" style="background-color: #2EFF9B; color: #2EFF9B;" aria-label="Mint Matrix"></button>
-                <button class="color-dot" data-palette="pink" style="background-color: #FF47B6; color: #FF47B6;" aria-label="Pink Neon"></button>
+                <button type="button" class="color-dot active" data-palette="cyan" style="background-color: #38F6FF; color: #38F6FF;" aria-label="Cyan OLED"></button>
+                <button type="button" class="color-dot" data-palette="amber" style="background-color: #FFB833; color: #FFB833;" aria-label="Amber Retro"></button>
+                <button type="button" class="color-dot" data-palette="mint" style="background-color: #2EFF9B; color: #2EFF9B;" aria-label="Mint Matrix"></button>
+                <button type="button" class="color-dot" data-palette="pink" style="background-color: #FF47B6; color: #FF47B6;" aria-label="Pink Neon"></button>
             </div>
 
             <!-- Divider -->
             <div class="w-px h-4 bg-white/15 shrink-0"></div>
 
             <!-- Sound Mute/Unmute Toggle -->
-            <button id="btnSound" class="pill-btn p-2 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 cursor-pointer" title="Toggle Retro Piezo Sound">
+            <button type="button" id="btnSound" class="pill-btn p-2 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 cursor-pointer" title="Toggle Retro Piezo Sound">
                 <svg id="iconSoundOn" class="w-4 h-4 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
                 </svg>
@@ -830,12 +873,13 @@
         }
 
         class AsciiFish {
-            constructor(isBaby = false, x = null, y = null) {
+            constructor(isBaby = false, x = null, y = null, speciesIndex = null) {
                 this.isBaby = isBaby;
-                this.x = x !== null ? x : width * (0.3 + Math.random() * 0.4);
-                this.y = y !== null ? y : height * (0.28 + Math.random() * 0.42);
+                this.speciesIndex = speciesIndex !== null ? speciesIndex : Math.floor(Math.random() * 4);
+                this.x = x !== null ? x : width * (0.28 + Math.random() * 0.44);
+                this.y = y !== null ? y : height * (0.24 + Math.random() * 0.48);
                 this.dir = Math.random() < 0.5 ? -1 : 1; // -1 = left (<°)))><), 1 = right (><(((°>)
-                this.baseSpeed = isBaby ? (0.85 + Math.random() * 0.35) : (0.68 + Math.random() * 0.25);
+                this.baseSpeed = isBaby ? (0.78 + Math.random() * 0.45) : (0.68 + Math.random() * 0.25);
                 this.vx = this.dir * this.baseSpeed;
                 this.vy = 0;
 
@@ -852,12 +896,39 @@
                 const frame = Math.floor(this.swimTick / 14) % 4;
 
                 if (this.isBaby) {
-                    if (this.dir === -1) {
-                        if (isHappy) return '<^)>';
-                        return frame % 2 === 0 ? '<°)>' : '<°)><';
+                    // Varied companion ASCII fish species: <°}}><, <°)))><, ><(((*>, <><
+                    if (this.speciesIndex === 0) {
+                        if (this.dir === -1) {
+                            if (isHappy) return '<^}}><';
+                            return frame % 2 === 0 ? '<°}}><' : '<°}}><';
+                        } else {
+                            if (isHappy) return '><{{^>';
+                            return frame % 2 === 0 ? '><{{°>' : '><{{{°>';
+                        }
+                    } else if (this.speciesIndex === 1) {
+                        if (this.dir === -1) {
+                            if (isHappy) return '<^(((*';
+                            return frame % 2 === 0 ? '<°(((*' : '<°((*';
+                        } else {
+                            if (isHappy) return '*)))^>';
+                            return frame % 2 === 0 ? '*)))°>' : '*))°>';
+                        }
+                    } else if (this.speciesIndex === 2) {
+                        if (this.dir === -1) {
+                            if (isHappy) return '<^)>';
+                            return frame % 2 === 0 ? '<°)>' : '<°)><';
+                        } else {
+                            if (isHappy) return '<(^>';
+                            return frame % 2 === 0 ? '<(°>' : '><(°>';
+                        }
                     } else {
-                        if (isHappy) return '<(^>';
-                        return frame % 2 === 0 ? '<(°>' : '><(°>';
+                        if (this.dir === -1) {
+                            if (isHappy) return '<^><';
+                            return frame % 2 === 0 ? '<><' : '<°><';
+                        } else {
+                            if (isHappy) return '><^>';
+                            return frame % 2 === 0 ? '><>' : '><°>';
+                        }
                     }
                 }
 
@@ -1160,7 +1231,35 @@
         // ============================================================================
         // FLOATING CONTROL PILL BINDINGS
         // ============================================================================
-        document.getElementById('btnFeed').addEventListener('click', () => {
+        const MAX_FISH_COUNT = 20;
+        let toastTimeout = null;
+
+        function showStatusFlash(message) {
+            const hint = document.getElementById('hintText');
+            if (!hint) return;
+            hint.textContent = message;
+            hint.style.opacity = '1';
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                hint.style.opacity = '0';
+            }, 2200);
+        }
+
+        function bindInstantButton(el, handler) {
+            if (!el) return;
+            let lastTrigger = 0;
+            const trigger = (e) => {
+                e.stopPropagation();
+                const now = performance.now();
+                if (now - lastTrigger < 140) return;
+                lastTrigger = now;
+                handler(e);
+            };
+            el.addEventListener('pointerdown', trigger);
+            el.addEventListener('click', trigger);
+        }
+
+        bindInstantButton(document.getElementById('btnFeed'), () => {
             const dropX = width * (0.25 + Math.random() * 0.5);
             const dropY = height * (0.14 + Math.random() * 0.14);
             dropFoodAt(dropX, dropY);
@@ -1168,24 +1267,42 @@
 
         const fishCountLabel = document.getElementById('fishCountLabel');
         function updateFishCountUI() {
-            fishCountLabel.textContent = fishes.length;
+            fishCountLabel.textContent = `(${fishes.length}/${MAX_FISH_COUNT})`;
         }
 
-        document.getElementById('btnAddFish').addEventListener('click', () => {
-            if (fishes.length >= 8) return;
-            const spawnX = width * (0.3 + Math.random() * 0.4);
-            const spawnY = height * (0.3 + Math.random() * 0.4);
-            fishes.push(new AsciiFish(true, spawnX, spawnY));
-            bubbles.push(new AsciiBubble(spawnX, spawnY, 'o'));
+        bindInstantButton(document.getElementById('btnAddFish'), () => {
+            if (fishes.length >= MAX_FISH_COUNT) {
+                audio.playGlassKnock();
+                showStatusFlash(`max (${MAX_FISH_COUNT}/${MAX_FISH_COUNT})`);
+                return;
+            }
+            const spawnX = width * (0.24 + Math.random() * 0.52);
+            const spawnY = height * (0.24 + Math.random() * 0.48);
+            const newFish = new AsciiFish(true, spawnX, spawnY);
+            fishes.push(newFish);
+
+            // Spawn a celebratory burst of ASCII bubbles ('o', '°', 'O')
+            bubbles.push(new AsciiBubble(spawnX, spawnY - 4, '°'));
+            bubbles.push(new AsciiBubble(spawnX - 8, spawnY - 10, 'o'));
+            bubbles.push(new AsciiBubble(spawnX + 8, spawnY - 14, 'O'));
+
             audio.playBubblePop();
             updateFishCountUI();
+            showStatusFlash(`add 1 fish • so far ${fishes.length}/${MAX_FISH_COUNT} 条`);
         });
 
-        document.getElementById('btnRemoveFish').addEventListener('click', () => {
-            if (fishes.length <= 1) return;
-            fishes.pop();
+        bindInstantButton(document.getElementById('btnRemoveFish'), () => {
+            if (fishes.length <= 1) {
+                showStatusFlash('at least 1 fish (1/20)');
+                return;
+            }
+            const removed = fishes.pop();
+            if (removed) {
+                bubbles.push(new AsciiBubble(removed.x, removed.y, 'o'));
+            }
             audio.playBubblePop();
             updateFishCountUI();
+            showStatusFlash(`reduce 1 fish •  ${fishes.length}/${MAX_FISH_COUNT} fish`);
         });
 
         // View Mode Toggle: Desk Gadget vs Fullscreen Glass
@@ -1194,7 +1311,7 @@
         const gadgetWrapper = document.getElementById('gadgetWrapper');
         const deskSurface = document.getElementById('deskSurface');
 
-        btnViewMode.addEventListener('click', () => {
+        bindInstantButton(btnViewMode, () => {
             isFullscreenGlass = !isFullscreenGlass;
             if (isFullscreenGlass) {
                 document.body.classList.remove('stage-desk');
@@ -1220,7 +1337,7 @@
         const feedIcon = document.getElementById('feedIcon');
 
         colorDots.forEach(dot => {
-            dot.addEventListener('click', () => {
+            bindInstantButton(dot, () => {
                 colorDots.forEach(d => d.classList.remove('active'));
                 dot.classList.add('active');
                 const key = dot.getAttribute('data-palette');
@@ -1234,6 +1351,7 @@
                 statusLed.style.backgroundColor = activePalette.fish;
                 statusLed.style.boxShadow = `0 0 8px ${activePalette.fish}`;
                 feedIcon.style.color = activePalette.fish;
+                fishCountLabel.style.color = activePalette.fish;
                 audio.playBubblePop();
             });
         });
@@ -1243,7 +1361,7 @@
         const iconSoundOn = document.getElementById('iconSoundOn');
         const iconSoundOff = document.getElementById('iconSoundOff');
 
-        btnSound.addEventListener('click', () => {
+        bindInstantButton(btnSound, () => {
             audio.enabled = !audio.enabled;
             if (audio.enabled) {
                 iconSoundOn.classList.remove('hidden');
@@ -1258,6 +1376,7 @@
         // Start animation loop on window load
         window.onload = function () {
             updateCanvasBounds();
+            updateFishCountUI();
             requestAnimationFrame(renderLoop);
         };
     </script>
