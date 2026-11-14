@@ -1,1384 +1,577 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ASCII Holo-Tank | Miniature Acrylic Aquarium</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --fish-color: #38F6FF;
-            --fish-glow: rgba(56, 246, 255, 0.85);
-            --fish-glow-outer: rgba(56, 246, 255, 0.35);
-            --seaweed-color: #2EFF9B;
-            --seaweed-glow: rgba(46, 255, 155, 0.75);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ASCII Holo-Tank | Digital Desk Aquarium</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 40%, #2a3132 0%, #15191a 100%);
+      font-family: "Courier New", Courier, monospace;
+      color: #6df7ff;
+    }
 
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            transition: background 0.6s ease;
-        }
+    .desk-mat {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-        .mono-font {
-            font-family: 'Fira Code', 'Courier New', monospace;
-        }
+    body.fullscreen-mode .desk-mat,
+    body.fullscreen-mode .stand-base,
+    body.fullscreen-mode .stand-legs {
+      display: none;
+    }
 
-        /* =====================================================================
-           STAGE & AMBIENT WORKBENCH BACKGROUND (DESK GADGET MODE)
-           ===================================================================== */
-        .stage-desk {
-            background: radial-gradient(circle at 50% 35%, #5b5752 0%, #3d3a37 45%, #242220 100%);
-        }
+    body.fullscreen-mode .prism-glass {
+      width: 94vw;
+      height: 82vh;
+      border-radius: 16px;
+    }
 
-        .stage-fullscreen {
-            background: radial-gradient(circle at 50% 45%, #07131a 0%, #03080c 65%, #010305 100%);
-        }
+    .gadget-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+      transform: translateY(-18px);
+    }
 
-        /* Realistic blurred workshop cutting-mat surface in Desk Mode */
-        .desk-surface {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            transition: opacity 0.6s ease;
-            overflow: hidden;
-        }
+    .prism-glass {
+      position: relative;
+      width: min(320px, 84vw);
+      height: min(300px, 48vh);
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.14) 0%,
+        rgba(180, 235, 245, 0.05) 45%,
+        rgba(255, 255, 255, 0.12) 100%
+      );
+      border-top: 3px solid rgba(255, 255, 255, 0.55);
+      border-left: 3px solid rgba(255, 255, 255, 0.45);
+      border-right: 2px solid rgba(255, 255, 255, 0.25);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      box-shadow:
+        inset 6px 6px 16px rgba(255, 255, 255, 0.18),
+        inset -6px -4px 14px rgba(0, 220, 255, 0.1),
+        0 10px 30px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      overflow: hidden;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
 
-        .desk-wall {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 56%;
-            background: linear-gradient(180deg, #6e675f 0%, #8b7b6b 55%, #a18262 88%, #7a5c3e 100%);
-            filter: blur(18px);
-            transform: scale(1.08);
-            opacity: 0.72;
-        }
+    .prism-reflection {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        115deg,
+        rgba(255, 255, 255, 0.22) 0%,
+        rgba(255, 255, 255, 0.04) 28%,
+        transparent 30%,
+        transparent 75%,
+        rgba(255, 255, 255, 0.08) 100%
+      );
+      pointer-events: none;
+      z-index: 5;
+    }
 
-        .cutting-mat {
-            position: absolute;
-            bottom: -10%;
-            left: -20%;
-            right: -20%;
-            height: 54%;
-            background-color: #36393c;
-            background-image:
-                linear-gradient(to right, rgba(255, 255, 255, 0.14) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.14) 1px, transparent 1px),
-                linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            background-size: 64px 64px, 64px 64px, 16px 16px, 16px 16px;
-            transform: perspective(650px) rotateX(58deg);
-            transform-origin: top center;
-            box-shadow: inset 0 25px 60px rgba(0, 0, 0, 0.65);
-            filter: blur(1.5px);
-        }
+    canvas#tankCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
 
-        /* Warm ambient rim light */
-        .desk-vignette {
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 50% 48%, transparent 32%, rgba(0, 0, 0, 0.58) 100%);
-        }
+    .stand-base {
+      width: min(356px, 92vw);
+      height: 76px;
+      background: linear-gradient(180deg, #98bdb9 0%, #83a8a4 100%);
+      border-radius: 8px;
+      box-shadow:
+        inset 0 2px 3px rgba(255, 255, 255, 0.45),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.2),
+        0 14px 24px rgba(0, 0, 0, 0.5);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
 
-        /* =====================================================================
-           3D ACRYLIC PRISM & SAGE-MINT DESK STAND
-           ===================================================================== */
-        .gadget-wrapper {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-            z-index: 10;
-            pointer-events: none;
-        }
+    .stand-base::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: rgba(35, 55, 53, 0.35);
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
 
-        /* The Transparent Acrylic Block */
-        .acrylic-prism {
-            position: relative;
-            width: clamp(230px, 34vw, 290px);
-            height: clamp(265px, 40vw, 335px);
-            border-radius: 5px 5px 2px 2px;
-            /* Translucent optical acrylic glass look */
-            background: linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.16) 0%,
-                rgba(210, 240, 255, 0.06) 28%,
-                rgba(15, 30, 42, 0.22) 65%,
-                rgba(255, 255, 255, 0.14) 100%
-            );
-            backdrop-filter: blur(3px) contrast(1.06);
-            -webkit-backdrop-filter: blur(3px) contrast(1.06);
-            /* Multi-layered refractive glass borders & bevel thickness */
-            border-top: 2px solid rgba(255, 255, 255, 0.62);
-            border-left: 3px solid rgba(255, 255, 255, 0.45);
-            border-right: 4px solid rgba(195, 230, 245, 0.35);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow:
-                /* Thick right & top internal acrylic refraction edge */
-                inset -7px 0 10px -4px rgba(255, 255, 255, 0.32),
-                inset 5px 0 8px -3px rgba(255, 255, 255, 0.38),
-                inset 0 6px 10px -4px rgba(255, 255, 255, 0.48),
-                inset 0 -14px 24px -8px rgba(56, 246, 255, 0.16),
-                /* External realistic shadow */
-                0 18px 35px rgba(0, 0, 0, 0.35),
-                0 0 1px 1px rgba(255, 255, 255, 0.22);
-            cursor: pointer;
-            pointer-events: auto;
-            touch-action: manipulation;
-            overflow: hidden;
-            transition: all 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-            transform-style: preserve-3d;
-        }
+    .stand-legs {
+      width: min(260px, 68vw);
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+    }
 
-        /* Fullscreen Glass Mode override */
-        .gadget-wrapper.fullscreen-mode {
-            width: 100vw;
-            height: 100vh;
-        }
+    .leg {
+      width: 54px;
+      height: 54px;
+      background: linear-gradient(180deg, #799e9a 0%, #688b87 100%);
+      border-radius: 0 0 6px 6px;
+      box-shadow:
+        inset 2px 0 3px rgba(255, 255, 255, 0.2),
+        0 12px 18px rgba(0, 0, 0, 0.55);
+    }
 
-        .gadget-wrapper.fullscreen-mode .acrylic-prism {
-            width: min(92vw, 760px);
-            height: min(72vh, 520px);
-            border-radius: 18px;
-            background: linear-gradient(
-                145deg,
-                rgba(16, 38, 52, 0.42) 0%,
-                rgba(6, 16, 24, 0.72) 55%,
-                rgba(14, 34, 48, 0.48) 100%
-            );
-            border: 1.5px solid rgba(140, 235, 255, 0.28);
-            box-shadow:
-                inset 0 0 45px rgba(56, 246, 255, 0.08),
-                inset 0 2px 12px rgba(255, 255, 255, 0.18),
-                0 25px 70px rgba(0, 0, 0, 0.85);
-        }
+    .controls-bar {
+      position: fixed;
+      bottom: max(20px, env(safe-area-inset-bottom, 20px));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: rgba(20, 28, 30, 0.82);
+      border: 1px solid rgba(109, 247, 255, 0.28);
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      z-index: 999;
+      width: max-content;
+      max-width: 95vw;
+    }
 
-        /* Side thickness bevel strip on right side of acrylic block */
-        .acrylic-side-bevel {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 9px;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0.04) 0%,
-                rgba(220, 245, 255, 0.28) 50%,
-                rgba(255, 255, 255, 0.55) 100%
-            );
-            border-left: 1px solid rgba(255, 255, 255, 0.25);
-            pointer-events: none;
-            z-index: 20;
-        }
+    .btn {
+      background: rgba(109, 247, 255, 0.12);
+      color: #b8fbff;
+      border: 1px solid rgba(109, 247, 255, 0.35);
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: transform 0.08s ease, background 0.15s ease;
+    }
 
-        /* Top beveled thickness plane */
-        .acrylic-top-bevel {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 8px;
-            background: linear-gradient(
-                180deg,
-                rgba(255, 255, 255, 0.52) 0%,
-                rgba(215, 242, 255, 0.15) 100%
-            );
-            border-bottom: 1px solid rgba(255, 255, 255, 0.22);
-            pointer-events: none;
-            z-index: 20;
-        }
+    .btn:active {
+      transform: scale(0.93);
+      background: rgba(109, 247, 255, 0.3);
+    }
 
-        /* Diagonal Specular Glass Reflection Sheen */
-        .glass-sheen {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                115deg,
-                rgba(255, 255, 255, 0.22) 0%,
-                rgba(255, 255, 255, 0.06) 24%,
-                transparent 24.5%,
-                transparent 68%,
-                rgba(255, 255, 255, 0.07) 78%,
-                transparent 88%
-            );
-            pointer-events: none;
-            z-index: 18;
-        }
-
-        /* Bottom OLED slot glow inside the base */
-        .oled-slot-glow {
-            position: absolute;
-            bottom: 0;
-            left: 10%;
-            right: 10%;
-            height: 14px;
-            background: radial-gradient(ellipse at center, var(--fish-glow) 0%, transparent 75%);
-            opacity: 0.55;
-            filter: blur(4px);
-            pointer-events: none;
-            z-index: 12;
-        }
-
-        /* Knock ripple ring animation */
-        .knock-ring {
-            position: absolute;
-            border-radius: 9999px;
-            border: 1.5px solid rgba(255, 255, 255, 0.75);
-            box-shadow: 0 0 12px var(--fish-glow), inset 0 0 8px rgba(255, 255, 255, 0.4);
-            transform: translate(-50%, -50%) scale(0.1);
-            opacity: 0.9;
-            pointer-events: none;
-            z-index: 25;
-            animation: rippleExpand 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes rippleExpand {
-            0% {
-                width: 12px;
-                height: 12px;
-                opacity: 0.95;
-            }
-            100% {
-                width: 160px;
-                height: 160px;
-                opacity: 0;
-            }
-        }
-
-        /* =====================================================================
-           3D-PRINTED SAGE / CELADON MINT BASE STAND (#8BB0AD)
-           ===================================================================== */
-        .desk-stand-assembly {
-            position: relative;
-            width: clamp(315px, 47vw, 405px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: -2px;
-            z-index: 15;
-            transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .gadget-wrapper.fullscreen-mode .desk-stand-assembly {
-            opacity: 0;
-            transform: translateY(60px) scale(0.92);
-            pointer-events: none;
-            position: absolute;
-            bottom: -200px;
-        }
-
-        /* Top Lid Rim of 3D Printed Housing */
-        .stand-lid {
-            width: 100%;
-            height: 22px;
-            background: linear-gradient(180deg, #9ec2bf 0%, #8bb0ad 75%, #799e9b 100%);
-            border-radius: 6px 6px 2px 2px;
-            border-top: 1.5px solid rgba(255, 255, 255, 0.42);
-            border-left: 1px solid rgba(255, 255, 255, 0.25);
-            border-right: 1px solid rgba(40, 62, 60, 0.25);
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.22);
-            position: relative;
-            display: flex;
-            justify-content: center;
-        }
-
-        /* Recessed acrylic slot bezel on top of lid */
-        .stand-slot-bezel {
-            width: 75%;
-            height: 6px;
-            margin-top: -1px;
-            background: linear-gradient(180deg, #5d7e7b 0%, #789d9a 100%);
-            border-radius: 0 0 3px 3px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
-        }
-
-        /* Horizontal 3D-printed case seam gap */
-        .stand-seam {
-            width: 97.5%;
-            height: 3px;
-            background: #486361;
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.65);
-        }
-
-        /* Main Electronics Enclosure Body */
-        .stand-body {
-            width: 98.5%;
-            height: clamp(68px, 10vw, 84px);
-            background: linear-gradient(180deg, #8bb0ad 0%, #7ea3a0 65%, #6d918e 100%);
-            border-radius: 2px 2px 6px 6px;
-            border-left: 1.5px solid rgba(255, 255, 255, 0.26);
-            border-right: 1.5px solid rgba(35, 55, 53, 0.3);
-            border-bottom: 2px solid #597a77;
-            box-shadow:
-                inset 0 6px 12px rgba(255, 255, 255, 0.12),
-                0 16px 28px rgba(0, 0, 0, 0.48);
-            position: relative;
-            /* Subtle 3D-printer layer line texture */
-            background-image: repeating-linear-gradient(
-                0deg,
-                rgba(255, 255, 255, 0.025) 0px,
-                rgba(255, 255, 255, 0.025) 1px,
-                transparent 1px,
-                transparent 3px
-            );
-        }
-
-        /* Two Rectangular Front Legs */
-        .stand-legs {
-            width: 74%;
-            display: flex;
-            justify-content: space-between;
-            margin-top: -1px;
-        }
-
-        .stand-leg {
-            width: clamp(34px, 5vw, 44px);
-            height: clamp(46px, 7vw, 58px);
-            background: linear-gradient(90deg, #7da19e 0%, #8bb0ad 35%, #739693 100%);
-            border-radius: 0 0 4px 4px;
-            border-left: 1px solid rgba(255, 255, 255, 0.25);
-            border-right: 1.5px solid rgba(38, 58, 56, 0.35);
-            border-bottom: 2px solid #557370;
-            box-shadow:
-                inset 0 6px 10px rgba(0, 0, 0, 0.28),
-                0 14px 20px rgba(0, 0, 0, 0.55);
-            position: relative;
-        }
-
-        /* Characteristic vertical snap-fit groove on each leg (matching photo) */
-        .stand-leg::after {
-            content: '';
-            position: absolute;
-            top: 8px;
-            bottom: 8px;
-            width: 3px;
-            background: #5b7b78;
-            border-radius: 2px;
-            box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.45);
-        }
-        .stand-leg.left::after {
-            right: 6px;
-        }
-        .stand-leg.right::after {
-            left: 6px;
-        }
-
-        /* Contact shadow on the cutting mat beneath the legs */
-        .stand-floor-shadow {
-            position: absolute;
-            bottom: -14px;
-            width: 92%;
-            height: 24px;
-            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.65) 0%, transparent 72%);
-            filter: blur(5px);
-            z-index: -1;
-        }
-
-        /* =====================================================================
-           ASCII HOLOGRAM TYPOGRAPHY & PHOSPHOR BLOOM
-           ===================================================================== */
-        #asciiCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* Floating Control Pill */
-        .control-nav {
-            position: fixed;
-            bottom: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            pointer-events: auto;
-            max-width: 96vw;
-        }
-
-        @media (min-width: 640px) {
-            .control-nav {
-                bottom: 1.5rem;
-            }
-        }
-
-        .control-pill {
-            background: rgba(16, 22, 26, 0.78);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
-            pointer-events: auto;
-        }
-
-        .pill-btn {
-            transition: all 0.18s ease;
-            touch-action: manipulation;
-            pointer-events: auto;
-        }
-        .pill-btn:hover {
-            background: rgba(255, 255, 255, 0.16);
-        }
-        .pill-btn:active {
-            transform: scale(0.93);
-        }
-
-        .color-dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 9999px;
-            border: 1.5px solid rgba(255, 255, 255, 0.35);
-            transition: transform 0.2s ease, border-color 0.2s ease;
-            cursor: pointer;
-            touch-action: manipulation;
-            pointer-events: auto;
-        }
-
-        .pill-btn {
-            transition: all 0.2s ease;
-        }
-        .pill-btn:hover {
-            background: rgba(255, 255, 255, 0.14);
-        }
-        .pill-btn:active {
-            transform: scale(0.94);
-        }
-
-        .color-dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 9999px;
-            border: 1.5px solid rgba(255, 255, 255, 0.35);
-            transition: transform 0.2s ease, border-color 0.2s ease;
-            cursor: pointer;
-        }
-        .color-dot.active {
-            transform: scale(1.22);
-            border-color: #ffffff;
-            box-shadow: 0 0 10px currentColor;
-        }
-    </style>
+    .hint-text {
+      position: fixed;
+      top: 16px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.5px;
+      pointer-events: none;
+      z-index: 20;
+    }
+  </style>
 </head>
-<body class="stage-desk flex flex-col items-center justify-center relative">
+<body>
+  <div class="desk-mat"></div>
+  <div class="hint-text">Tap glass to feed · Double-tap to knock</div>
 
-    <!-- Blurred Workbench & Cutting Mat Background -->
-    <div id="deskSurface" class="desk-surface">
-        <div class="desk-wall"></div>
-        <div class="cutting-mat"></div>
-        <div class="desk-vignette"></div>
+  <div class="gadget-wrapper">
+    <div class="prism-glass" id="glassBox">
+      <canvas id="tankCanvas"></canvas>
+      <div class="prism-reflection"></div>
     </div>
-
-    <!-- Subtle Top-Left Ambient Status Badge -->
-    <div class="fixed top-4 left-4 sm:top-6 sm:left-6 z-30 pointer-events-none flex items-center gap-2.5 opacity-80">
-        <span id="statusLed" class="w-2 h-2 rounded-full bg-[#38F6FF] shadow-[0_0_8px_#38F6FF] animate-pulse"></span>
-        <span class="mono-font text-white/85 text-xs sm:text-sm tracking-wider font-medium">
-            ASCII_TANK // v1.04
-        </span>
+    <div class="stand-base"></div>
+    <div class="stand-legs">
+      <div class="leg"></div>
+      <div class="leg"></div>
     </div>
+  </div>
 
-    <!-- Centerpiece 3D Acrylic Hologram Desk Gadget -->
-    <main id="gadgetWrapper" class="gadget-wrapper">
-        <!-- Transparent Vertical Acrylic Prism -->
-        <div id="acrylicPrism" class="acrylic-prism" title="Click to feed • Double-click to knock on glass">
-            <div class="acrylic-top-bevel"></div>
-            <div class="acrylic-side-bevel"></div>
-            <div class="glass-sheen"></div>
-            <div id="oledSlotGlow" class="oled-slot-glow"></div>
-            <canvas id="asciiCanvas"></canvas>
-        </div>
+  <div class="controls-bar">
+    <button class="btn" id="btnAddFish">+ Fish (<span id="fishCount">1</span>/20)</button>
+    <button class="btn" id="btnRemoveFish">- Fish</button>
+    <button class="btn" id="btnFeed">Feed</button>
+    <button class="btn" id="btnColor">Glow</button>
+    <button class="btn" id="btnSound">SFX: ON</button>
+    <button class="btn" id="btnMode">Full</button>
+  </div>
 
-        <!-- 3D-Printed Sage/Mint Electronics Base Stand -->
-        <div class="desk-stand-assembly pointer-events-none" aria-hidden="true">
-            <div class="stand-lid">
-                <div class="stand-slot-bezel"></div>
-            </div>
-            <div class="stand-seam"></div>
-            <div class="stand-body"></div>
-            <div class="stand-legs">
-                <div class="stand-leg left"></div>
-                <div class="stand-leg right"></div>
-            </div>
-            <div class="stand-floor-shadow"></div>
-        </div>
-    </main>
+  <script>
+    const canvas = document.getElementById("tankCanvas");
+    const ctx = canvas.getContext("2d");
+    const glassBox = document.getElementById("glassBox");
+    const fishCountEl = document.getElementById("fishCount");
 
-    <!-- Subtle Interaction Hint & Status Toast -->
-    <div id="hintText" class="fixed bottom-20 sm:bottom-24 z-30 text-white/65 text-[11px] sm:text-xs tracking-wide pointer-events-none transition-opacity duration-500 text-center px-4">
-        Tap glass to drop ASCII pellets &bull; Double-tap to knock
-    </div>
+    const MAX_FISH = 20;
+    let soundEnabled = true;
+    let audioCtx = null;
 
-    <!-- Minimalist Floating Control Pill (High z-index & touch-friendly) -->
-    <nav class="control-nav">
-        <div class="control-pill rounded-full px-3 py-2 sm:px-4 sm:py-2.5 flex items-center gap-1.5 sm:gap-2.5 text-white/90 text-xs sm:text-sm overflow-x-auto">
-            
-            <!-- Feed Button -->
-            <button type="button" id="btnFeed" class="pill-btn px-3 py-1.5 rounded-full bg-white/10 font-medium flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
-                <span class="mono-font text-[#38F6FF] font-bold" id="feedIcon">*</span>
-                <span>Feed</span>
-            </button>
+    const themes = [
+      { fish: "#5ceeff", glow: "#00d9ff", weed: "#43f59b", bubble: "#9ff6ff", food: "#ffe66d" },
+      { fish: "#6bff95", glow: "#1aff66", weed: "#29b677", bubble: "#b8ffd0", food: "#fff07c" },
+      { fish: "#ffbe55", glow: "#ff9900", weed: "#5ce09b", bubble: "#ffe2b0", food: "#70f3ff" },
+      { fish: "#ff7be5", glow: "#ff33cc", weed: "#4be8b0", bubble: "#ffc7f3", food: "#ffe66d" }
+    ];
+    let themeIndex = 0;
 
-            <!-- Add / Remove ASCII Fish (Up to 20) -->
-            <div class="flex items-center bg-white/10 rounded-full border border-white/15 p-0.5 shrink-0">
-                <button type="button" id="btnAddFish" class="pill-btn px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 whitespace-nowrap cursor-pointer text-white" title="Add ASCII fish (Max 20)">
-                    <span>+ Fish</span>
-                    <span id="fishCountLabel" class="mono-font text-[11px] text-[#38F6FF] font-bold">(1/20)</span>
-                </button>
-                <button type="button" id="btnRemoveFish" class="pill-btn px-2.5 py-1 rounded-full text-xs font-bold text-white/75 hover:text-white cursor-pointer" title="Remove extra fish">
-                    &minus;
-                </button>
-            </div>
+    const fishSprites = [
+      { right: "><(((°>", left: "<°)))><", happyRight: "><(((^>", happyLeft: "<^)))><" },
+      { right: "><(((*>", left: "<*)))><", happyRight: "><(((^>", happyLeft: "<^)))><" },
+      { right: "><{{°>",  left: "<°}}><",  happyRight: "><{{^>",  happyLeft: "<^}}><" },
+      { right: "*)))°>",  left: "<°(((*",  happyRight: "*)))^>",  happyLeft: "<^(((*" },
+      { right: "><°>",    left: "<°><",    happyRight: "><^>",    happyLeft: "<^><" }
+    ];
 
-            <!-- Divider -->
-            <div class="w-px h-4 bg-white/15 shrink-0"></div>
+    let fishes = [];
+    let bubbles = [];
+    let foods = [];
+    let weeds = [];
 
-            <!-- View Mode Toggle -->
-            <button type="button" id="btnViewMode" class="pill-btn px-3 py-1.5 rounded-full bg-white/5 border border-white/10 font-medium whitespace-nowrap cursor-pointer">
-                <span id="viewModeText">Fullscreen Glass</span>
-            </button>
+    function resizeCanvas() {
+      const rect = glassBox.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      initWeeds(rect.width, rect.height);
+    }
 
-            <!-- Divider -->
-            <div class="w-px h-4 bg-white/15 shrink-0"></div>
-
-            <!-- Fish Phosphor Color Swatches -->
-            <div class="flex items-center gap-2 px-1 shrink-0" title="OLED Phosphor Color">
-                <button type="button" class="color-dot active" data-palette="cyan" style="background-color: #38F6FF; color: #38F6FF;" aria-label="Cyan OLED"></button>
-                <button type="button" class="color-dot" data-palette="amber" style="background-color: #FFB833; color: #FFB833;" aria-label="Amber Retro"></button>
-                <button type="button" class="color-dot" data-palette="mint" style="background-color: #2EFF9B; color: #2EFF9B;" aria-label="Mint Matrix"></button>
-                <button type="button" class="color-dot" data-palette="pink" style="background-color: #FF47B6; color: #FF47B6;" aria-label="Pink Neon"></button>
-            </div>
-
-            <!-- Divider -->
-            <div class="w-px h-4 bg-white/15 shrink-0"></div>
-
-            <!-- Sound Mute/Unmute Toggle -->
-            <button type="button" id="btnSound" class="pill-btn p-2 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 cursor-pointer" title="Toggle Retro Piezo Sound">
-                <svg id="iconSoundOn" class="w-4 h-4 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
-                </svg>
-                <svg id="iconSoundOff" class="w-4 h-4 text-white/45 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path>
-                </svg>
-            </button>
-        </div>
-    </nav>
-
-    <script>
-        /**
-         * ============================================================================
-         * HOLOGRAPHIC ASCII DIGITAL FISH TANK ENGINE
-         * ============================================================================
-         */
-
-        const prismEl = document.getElementById('acrylicPrism');
-        const canvas = document.getElementById('asciiCanvas');
-        const ctx = canvas.getContext('2d');
-
-        let width = 260;
-        let height = 300;
-        let dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-        function updateCanvasBounds() {
-            const rect = prismEl.getBoundingClientRect();
-            width = rect.width;
-            height = rect.height;
-            dpr = Math.min(window.devicePixelRatio || 1, 2);
-            canvas.width = Math.round(width * dpr);
-            canvas.height = Math.round(height * dpr);
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        }
-
-        // Observe resize & layout transitions smoothly
-        const resizeObserver = new ResizeObserver(() => {
-            updateCanvasBounds();
+    function initWeeds(w, h) {
+      weeds = [];
+      const count = Math.max(3, Math.floor(w / 75));
+      for (let i = 0; i < count; i++) {
+        weeds.push({
+          x: (w / (count + 1)) * (i + 1) + (Math.random() - 0.5) * 18,
+          segments: 4 + Math.floor(Math.random() * 3),
+          phase: Math.random() * Math.PI * 2
         });
-        resizeObserver.observe(prismEl);
-        window.addEventListener('resize', updateCanvasBounds);
-        updateCanvasBounds();
+      }
+    }
 
-        // ============================================================================
-        // PHOSPHOR COLOR PALETTES
-        // ============================================================================
-        const PALETTES = {
-            cyan: {
-                fish: '#38F6FF',
-                fishGlow: 'rgba(56, 246, 255, 0.9)',
-                fishGlowOuter: 'rgba(0, 170, 255, 0.45)',
-                bubble: '#63FAFF',
-                food: '#A5FCFF',
-                seaweed: '#2EFF9B',
-                seaweedGlow: 'rgba(46, 255, 155, 0.85)'
-            },
-            amber: {
-                fish: '#FFB833',
-                fishGlow: 'rgba(255, 184, 51, 0.9)',
-                fishGlowOuter: 'rgba(255, 120, 0, 0.45)',
-                bubble: '#FFD275',
-                food: '#FFF0B3',
-                seaweed: '#FF7A2E',
-                seaweedGlow: 'rgba(255, 122, 46, 0.8)'
-            },
-            mint: {
-                fish: '#2EFF9B',
-                fishGlow: 'rgba(46, 255, 155, 0.9)',
-                fishGlowOuter: 'rgba(0, 210, 110, 0.45)',
-                bubble: '#8AFFC7',
-                food: '#D4FFEA',
-                seaweed: '#18C978',
-                seaweedGlow: 'rgba(24, 201, 120, 0.8)'
-            },
-            pink: {
-                fish: '#FF47B6',
-                fishGlow: 'rgba(255, 71, 182, 0.9)',
-                fishGlowOuter: 'rgba(220, 20, 140, 0.45)',
-                bubble: '#FF94D6',
-                food: '#FFD6F0',
-                seaweed: '#38F6FF',
-                seaweedGlow: 'rgba(56, 246, 255, 0.8)'
-            }
-        };
-
-        let activePalette = PALETTES.cyan;
-        let isFullscreenGlass = false;
-
-        // ============================================================================
-        // RETRO-FUTURISTIC PIEZO / WATER BLIP AUDIO ENGINE (WEB AUDIO API)
-        // ============================================================================
-        class PiezoAudio {
-            constructor() {
-                this.ctx = null;
-                this.enabled = true;
-            }
-
-            ensureContext() {
-                if (!this.ctx) {
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    this.ctx = new AudioCtx();
-                }
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
-            }
-
-            playFeedDrop() {
-                if (!this.enabled) return;
-                try {
-                    this.ensureContext();
-                    const now = this.ctx.currentTime;
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(980, now);
-                    osc.frequency.exponentialRampToValueAtTime(520, now + 0.08);
-                    gain.gain.setValueAtTime(0.06, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(now);
-                    osc.stop(now + 0.1);
-                } catch (e) {}
-            }
-
-            playEatBlip() {
-                if (!this.enabled) return;
-                try {
-                    this.ensureContext();
-                    const now = this.ctx.currentTime;
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(580, now);
-                    osc.frequency.setValueAtTime(880, now + 0.045);
-                    gain.gain.setValueAtTime(0.07, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(now);
-                    osc.stop(now + 0.13);
-                } catch (e) {}
-            }
-
-            playBubblePop() {
-                if (!this.enabled) return;
-                try {
-                    this.ensureContext();
-                    const now = this.ctx.currentTime;
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    const f = 650 + Math.random() * 350;
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(f, now);
-                    osc.frequency.exponentialRampToValueAtTime(f * 1.75, now + 0.06);
-                    gain.gain.setValueAtTime(0.03, now);
-                    gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.065);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(now);
-                    osc.stop(now + 0.07);
-                } catch (e) {}
-            }
-
-            playGlassKnock() {
-                if (!this.enabled) return;
-                try {
-                    this.ensureContext();
-                    const now = this.ctx.currentTime;
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(240, now);
-                    osc.frequency.exponentialRampToValueAtTime(95, now + 0.09);
-                    gain.gain.setValueAtTime(0.12, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(now);
-                    osc.stop(now + 0.11);
-                } catch (e) {}
-            }
+    function playBeep(freq = 620, duration = 0.06, type = "sine") {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
 
-        const audio = new PiezoAudio();
+    function updateCounter() {
+      fishCountEl.textContent = fishes.length;
+    }
 
-        // ============================================================================
-        // ASCII ENTITIES: SEAWEED, BUBBLES, FOOD PELLETS & HOLOGRAPHIC FISH
-        // ============================================================================
-        class SeaweedStrand {
-            constructor(normX, heightRows, phaseOffset) {
-                this.normX = normX; // Normalized horizontal anchor (0..1)
-                this.heightRows = heightRows;
-                this.phaseOffset = phaseOffset;
-                this.chars = ['(', ')', 'S', '~', '{', '}'];
-            }
+    function createFish(x, y, spriteIdx = 0) {
+      const rect = glassBox.getBoundingClientRect();
+      const dir = Math.random() > 0.5 ? 1 : -1;
+      return {
+        x: x ?? rect.width * (0.25 + Math.random() * 0.5),
+        y: y ?? rect.height * (0.25 + Math.random() * 0.45),
+        vx: dir * (0.55 + Math.random() * 0.65),
+        vy: (Math.random() - 0.5) * 0.25,
+        dir: dir,
+        sprite: fishSprites[spriteIdx % fishSprites.length],
+        happyTimer: 0,
+        bobOffset: Math.random() * Math.PI * 2,
+        scale: spriteIdx === 0 ? 1.05 : 0.85 + Math.random() * 0.25
+      };
+    }
 
-            draw(ctx, time, palette) {
-                const baseX = this.normX * width;
-                const bottomY = height - 10;
-                const fontSize = isFullscreenGlass ? 17 : 14;
-                const rowStep = fontSize * 0.92;
+    function spawnBubble(x, y, char = null) {
+      const chars = ["o", "°", "O", "."];
+      bubbles.push({
+        x: x + (Math.random() - 0.5) * 8,
+        y: y,
+        vy: 0.65 + Math.random() * 0.75,
+        wobble: Math.random() * Math.PI * 2,
+        char: char || chars[Math.floor(Math.random() * chars.length)]
+      });
+    }
 
-                ctx.save();
-                ctx.font = `600 ${fontSize}px "Fira Code", monospace`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = palette.seaweed;
-                ctx.shadowColor = palette.seaweedGlow;
-                ctx.shadowBlur = 10;
+    function addOneFish() {
+      if (fishes.length >= MAX_FISH) {
+        playBeep(260, 0.08, "square");
+        return;
+      }
+      const rect = glassBox.getBoundingClientRect();
+      const fx = rect.width * (0.2 + Math.random() * 0.6);
+      const fy = rect.height * (0.2 + Math.random() * 0.5);
+      const newFish = createFish(fx, fy, fishes.length);
+      fishes.push(newFish);
+      updateCounter();
 
-                for (let i = 0; i < this.heightRows; i++) {
-                    // Sway amplitude increases with height from root
-                    const ratio = (i + 1) / this.heightRows;
-                    const sway = Math.sin(time * 0.0024 + this.phaseOffset + i * 0.65) * (5.5 * ratio);
-                    const charIndex = Math.floor((Math.sin(time * 0.002 + i + this.phaseOffset) + 1) * 1.99);
-                    const ch = i % 2 === 0 ? (sway >= 0 ? ')' : '(') : ['~', 'S', '(', ')'][charIndex % 4];
+      spawnBubble(fx, fy, "O");
+      spawnBubble(fx - 6, fy + 5, "o");
+      spawnBubble(fx + 6, fy + 4, "°");
+      playBeep(780, 0.07, "sine");
+    }
 
-                    const x = baseX + sway;
-                    const y = bottomY - i * rowStep;
-                    ctx.fillText(ch, x, y);
-                }
-                ctx.restore();
-            }
+    function removeOneFish() {
+      if (fishes.length <= 1) {
+        playBeep(260, 0.08, "square");
+        return;
+      }
+      const removed = fishes.pop();
+      updateCounter();
+      spawnBubble(removed.x, removed.y, "°");
+      playBeep(420, 0.06, "sine");
+    }
+
+    function dropFood(x, y) {
+      const rect = glassBox.getBoundingClientRect();
+      const foodChars = ["·", "*", "+", "•"];
+      for (let i = 0; i < 3; i++) {
+        foods.push({
+          x: (x ?? rect.width * (0.2 + Math.random() * 0.6)) + (Math.random() - 0.5) * 24,
+          y: (y ?? 24) + Math.random() * 10,
+          vy: 0.35 + Math.random() * 0.25,
+          char: foodChars[Math.floor(Math.random() * foodChars.length)]
+        });
+      }
+      playBeep(540, 0.05, "triangle");
+    }
+
+    function bindSingleAction(element, callback, cooldown = 250) {
+      let lastTrigger = 0;
+      element.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const now = Date.now();
+        if (now - lastTrigger < cooldown) return;
+        lastTrigger = now;
+        callback(e);
+      });
+    }
+
+    bindSingleAction(document.getElementById("btnAddFish"), addOneFish, 250);
+    bindSingleAction(document.getElementById("btnRemoveFish"), removeOneFish, 220);
+    bindSingleAction(document.getElementById("btnFeed"), () => dropFood(), 200);
+    bindSingleAction(document.getElementById("btnColor"), () => {
+      themeIndex = (themeIndex + 1) % themes.length;
+      playBeep(660, 0.06, "sine");
+    }, 200);
+    bindSingleAction(document.getElementById("btnSound"), (e) => {
+      soundEnabled = !soundEnabled;
+      e.currentTarget.textContent = soundEnabled ? "SFX: ON" : "SFX: OFF";
+      if (soundEnabled) playBeep(720, 0.06, "sine");
+    }, 200);
+    bindSingleAction(document.getElementById("btnMode"), (e) => {
+      document.body.classList.toggle("fullscreen-mode");
+      e.currentTarget.textContent = document.body.classList.contains("fullscreen-mode") ? "Stand" : "Full";
+      setTimeout(resizeCanvas, 50);
+    }, 250);
+
+    let lastTapTime = 0;
+    glassBox.addEventListener("pointerdown", (e) => {
+      const rect = glassBox.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const now = Date.now();
+
+      if (now - lastTapTime < 280) {
+        fishes.forEach((f) => {
+          f.dir = f.x < x ? -1 : 1;
+          f.vx = f.dir * (1.8 + Math.random() * 0.8);
+          spawnBubble(f.x, f.y - 6, "o");
+        });
+        playBeep(920, 0.05, "square");
+      } else {
+        dropFood(x, y);
+      }
+      lastTapTime = now;
+    });
+
+    function updateAndDraw(time) {
+      const rect = glassBox.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      const theme = themes[themeIndex];
+
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.font = "bold 16px 'Courier New', monospace";
+      ctx.fillStyle = theme.weed;
+      ctx.shadowColor = theme.weed;
+      ctx.shadowBlur = 8;
+      ctx.textAlign = "center";
+
+      weeds.forEach((weed) => {
+        for (let s = 0; s < weed.segments; s++) {
+          const sway = Math.sin(time * 0.0022 + weed.phase + s * 0.7) * (2 + s * 0.8);
+          const char = (s + Math.floor(time * 0.002)) % 2 === 0 ? "(" : ")";
+          ctx.fillText(char, weed.x + sway, h - 10 - s * 14);
         }
+      });
+      ctx.restore();
 
-        class AsciiBubble {
-            constructor(x, y, customChar = null) {
-                this.x = x;
-                this.y = y;
-                const chars = ['o', '°', 'O', '◦'];
-                this.char = customChar || chars[Math.floor(Math.random() * chars.length)];
-                this.vy = -(0.55 + Math.random() * 0.65);
-                this.wobblePhase = Math.random() * Math.PI * 2;
-                this.wobbleSpeed = 0.04 + Math.random() * 0.03;
-                this.wobbleAmp = 0.35 + Math.random() * 0.45;
-                this.alpha = 0.95;
-            }
+      ctx.save();
+      ctx.font = "bold 14px 'Courier New', monospace";
+      ctx.fillStyle = theme.food;
+      ctx.shadowColor = theme.food;
+      ctx.shadowBlur = 6;
+      ctx.textAlign = "center";
 
-            update() {
-                this.y += this.vy;
-                this.wobblePhase += this.wobbleSpeed;
-                this.x += Math.sin(this.wobblePhase) * this.wobbleAmp;
-
-                // Fade near top glass edge
-                if (this.y < 28) {
-                    this.alpha -= 0.045;
-                }
-                return this.y > 10 && this.alpha > 0;
-            }
-
-            draw(ctx, palette) {
-                const fontSize = isFullscreenGlass ? 15 : 13;
-                ctx.save();
-                ctx.globalAlpha = Math.max(0, this.alpha);
-                ctx.font = `500 ${fontSize}px "Fira Code", monospace`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = palette.bubble;
-                ctx.shadowColor = palette.fishGlow;
-                ctx.shadowBlur = 8;
-                ctx.fillText(this.char, this.x, this.y);
-                ctx.restore();
-            }
+      for (let i = foods.length - 1; i >= 0; i--) {
+        const fd = foods[i];
+        fd.y += fd.vy;
+        fd.x += Math.sin(time * 0.005 + i) * 0.2;
+        ctx.fillText(fd.char, fd.x, fd.y);
+        if (fd.y > h - 12) {
+          foods.splice(i, 1);
         }
+      }
+      ctx.restore();
 
-        class FoodPellet {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                const glyphs = ['·', '*', '+'];
-                this.char = glyphs[Math.floor(Math.random() * glyphs.length)];
-                this.vy = 0.38 + Math.random() * 0.25;
-                this.driftPhase = Math.random() * Math.PI * 2;
-                this.eaten = false;
-                this.age = 0;
-            }
-
-            update() {
-                this.age++;
-                this.driftPhase += 0.05;
-                if (this.y < height - 18) {
-                    this.y += this.vy;
-                    this.x += Math.sin(this.driftPhase) * 0.25;
-                }
-                // Dissolve after ~20 seconds if untouched
-                return !this.eaten && this.age < 1200;
-            }
-
-            draw(ctx, palette) {
-                const fontSize = isFullscreenGlass ? 16 : 14;
-                const pulse = 0.75 + 0.25 * Math.sin(this.age * 0.15);
-                ctx.save();
-                ctx.globalAlpha = pulse;
-                ctx.font = `700 ${fontSize}px "Fira Code", monospace`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = palette.food;
-                ctx.shadowColor = palette.fishGlow;
-                ctx.shadowBlur = 10;
-                ctx.fillText(this.char, this.x, this.y);
-                ctx.restore();
-            }
-        }
-
-        class AsciiFish {
-            constructor(isBaby = false, x = null, y = null, speciesIndex = null) {
-                this.isBaby = isBaby;
-                this.speciesIndex = speciesIndex !== null ? speciesIndex : Math.floor(Math.random() * 4);
-                this.x = x !== null ? x : width * (0.28 + Math.random() * 0.44);
-                this.y = y !== null ? y : height * (0.24 + Math.random() * 0.48);
-                this.dir = Math.random() < 0.5 ? -1 : 1; // -1 = left (<°)))><), 1 = right (><(((°>)
-                this.baseSpeed = isBaby ? (0.78 + Math.random() * 0.45) : (0.68 + Math.random() * 0.25);
-                this.vx = this.dir * this.baseSpeed;
-                this.vy = 0;
-
-                this.bobPhase = Math.random() * Math.PI * 2;
-                this.swimTick = Math.random() * 100;
-                this.pauseTimer = 0;
-                this.happyTimer = 0;
-                this.dartTimer = 0;
-                this.bubbleCooldown = 40 + Math.floor(Math.random() * 90);
-            }
-
-            getGlyph() {
-                const isHappy = this.happyTimer > 0;
-                const frame = Math.floor(this.swimTick / 14) % 4;
-
-                if (this.isBaby) {
-                    // Varied companion ASCII fish species: <°}}><, <°)))><, ><(((*>, <><
-                    if (this.speciesIndex === 0) {
-                        if (this.dir === -1) {
-                            if (isHappy) return '<^}}><';
-                            return frame % 2 === 0 ? '<°}}><' : '<°}}><';
-                        } else {
-                            if (isHappy) return '><{{^>';
-                            return frame % 2 === 0 ? '><{{°>' : '><{{{°>';
-                        }
-                    } else if (this.speciesIndex === 1) {
-                        if (this.dir === -1) {
-                            if (isHappy) return '<^(((*';
-                            return frame % 2 === 0 ? '<°(((*' : '<°((*';
-                        } else {
-                            if (isHappy) return '*)))^>';
-                            return frame % 2 === 0 ? '*)))°>' : '*))°>';
-                        }
-                    } else if (this.speciesIndex === 2) {
-                        if (this.dir === -1) {
-                            if (isHappy) return '<^)>';
-                            return frame % 2 === 0 ? '<°)>' : '<°)><';
-                        } else {
-                            if (isHappy) return '<(^>';
-                            return frame % 2 === 0 ? '<(°>' : '><(°>';
-                        }
-                    } else {
-                        if (this.dir === -1) {
-                            if (isHappy) return '<^><';
-                            return frame % 2 === 0 ? '<><' : '<°><';
-                        } else {
-                            if (isHappy) return '><^>';
-                            return frame % 2 === 0 ? '><>' : '><°>';
-                        }
-                    }
-                }
-
-                // Classic Hero ASCII Fish: <°)))><  and  ><(((°>
-                if (this.dir === -1) {
-                    if (isHappy) return '<^)))><';
-                    const frames = ['<°)))><', '<°))><', '<°)))><', '<°))))><'];
-                    return frames[frame];
-                } else {
-                    if (isHappy) return '><(((^>';
-                    const frames = ['><(((°>', '><((°>', '><(((°>', '><((((°>'];
-                    return frames[frame];
-                }
-            }
-
-            startle(knockX, knockY) {
-                const dx = this.x - knockX;
-                const dy = this.y - knockY;
-                this.dir = dx >= 0 ? 1 : -1;
-                this.dartTimer = 42;
-                this.pauseTimer = 0;
-                this.vx = this.dir * this.baseSpeed * 2.8;
-                this.vy = (dy >= 0 ? 1 : -1) * (0.6 + Math.random() * 0.8);
-            }
-
-            update(foods, bubbles) {
-                this.swimTick++;
-                this.bobPhase += 0.045;
-
-                if (this.happyTimer > 0) this.happyTimer--;
-                if (this.dartTimer > 0) this.dartTimer--;
-
-                // Ambient periodic mouth bubble emission
-                this.bubbleCooldown--;
-                if (this.bubbleCooldown <= 0) {
-                    const mouthOffset = this.dir * (this.isBaby ? 16 : 30);
-                    bubbles.push(new AsciiBubble(this.x + mouthOffset, this.y - 4));
-                    this.bubbleCooldown = this.isBaby
-                        ? (130 + Math.floor(Math.random() * 140))
-                        : (85 + Math.floor(Math.random() * 110));
-                }
-
-                // 1. Seek nearest food pellet if available
-                let targetFood = null;
-                let minDist = Infinity;
-                for (let f of foods) {
-                    if (f.eaten) continue;
-                    const d = Math.hypot(f.x - this.x, f.y - this.y);
-                    if (d < minDist) {
-                        minDist = d;
-                        targetFood = f;
-                    }
-                }
-
-                const marginX = this.isBaby ? 32 : 52;
-                const minY = 34;
-                const maxY = height - 38;
-
-                if (targetFood && this.dartTimer <= 0) {
-                    this.pauseTimer = 0;
-                    const dx = targetFood.x - this.x;
-                    const dy = targetFood.y - this.y;
-                    if (Math.abs(dx) > 6) {
-                        this.dir = dx > 0 ? 1 : -1;
-                    }
-                    const chaseSpeed = this.baseSpeed * 1.75;
-                    const angle = Math.atan2(dy, dx);
-                    this.vx += (Math.cos(angle) * chaseSpeed - this.vx) * 0.08;
-                    this.vy += (Math.sin(angle) * chaseSpeed - this.vy) * 0.08;
-
-                    // Eat food pellet when mouth reaches it
-                    const eatRadius = this.isBaby ? 18 : 26;
-                    if (minDist < eatRadius) {
-                        targetFood.eaten = true;
-                        this.happyTimer = 75;
-                        audio.playEatBlip();
-
-                        // Happy burst of bubbles °oO
-                        const mouthX = this.x + this.dir * (this.isBaby ? 14 : 26);
-                        bubbles.push(new AsciiBubble(mouthX, this.y - 4, '°'));
-                        bubbles.push(new AsciiBubble(mouthX + (Math.random() - 0.5) * 8, this.y - 10, 'o'));
-                        bubbles.push(new AsciiBubble(mouthX + (Math.random() - 0.5) * 10, this.y - 16, 'O'));
-                    }
-                } else {
-                    // 2. Normal curious swimming behavior
-                    if (this.pauseTimer > 0) {
-                        this.pauseTimer--;
-                        this.vx *= 0.9;
-                        this.vy *= 0.9;
-                    } else {
-                        // Gentle speed modulation & vertical bobbing
-                        const speedMod = this.dartTimer > 0
-                            ? 2.2
-                            : (0.85 + 0.3 * Math.sin(this.swimTick * 0.03));
-                        const desiredVx = this.dir * this.baseSpeed * speedMod;
-                        const desiredVy = Math.cos(this.bobPhase) * 0.32;
-
-                        this.vx += (desiredVx - this.vx) * 0.06;
-                        this.vy += (desiredVy - this.vy) * 0.06;
-
-                        // Occasional curious pause near the acrylic glass wall
-                        if (
-                            this.dartTimer <= 0 &&
-                            Math.random() < 0.0025 &&
-                            (this.x < marginX + 25 || this.x > width - marginX - 25)
-                        ) {
-                            this.pauseTimer = 45 + Math.floor(Math.random() * 45);
-                        }
-                    }
-                }
-
-                // Apply velocity
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Soft acrylic tank wall turnaround
-                if (this.x < marginX) {
-                    this.x = marginX;
-                    this.dir = 1;
-                    this.vx = Math.abs(this.vx) * 0.6;
-                } else if (this.x > width - marginX) {
-                    this.x = width - marginX;
-                    this.dir = -1;
-                    this.vx = -Math.abs(this.vx) * 0.6;
-                }
-
-                if (this.y < minY) {
-                    this.y = minY;
-                    this.vy = Math.abs(this.vy) * 0.5;
-                } else if (this.y > maxY) {
-                    this.y = maxY;
-                    this.vy = -Math.abs(this.vy) * 0.5;
-                }
-            }
-
-            draw(ctx, palette) {
-                const baseFontSize = isFullscreenGlass ? 22 : 16.5;
-                const fontSize = this.isBaby ? baseFontSize * 0.76 : baseFontSize;
-                const glyph = this.getGlyph();
-
-                ctx.save();
-                ctx.font = `700 ${fontSize}px "Fira Code", monospace`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                // Multi-pass CRT / OLED Phosphor Bloom
-                ctx.shadowColor = palette.fishGlowOuter;
-                ctx.shadowBlur = 18;
-                ctx.fillStyle = palette.fish;
-                ctx.fillText(glyph, this.x, this.y);
-
-                ctx.shadowColor = palette.fishGlow;
-                ctx.shadowBlur = 7;
-                ctx.fillText(glyph, this.x, this.y);
-
-                ctx.restore();
-            }
-        }
-
-        // ============================================================================
-        // TANK WORLD STATE & ANIMATION LOOP
-        // ============================================================================
-        const seaweeds = [
-            new SeaweedStrand(0.32, 3, 0.2),
-            new SeaweedStrand(0.70, 3, 2.1),
-            new SeaweedStrand(0.16, 2, 4.0)
-        ];
-
-        let fishes = [new AsciiFish(false)];
-        let bubbles = [];
-        let foods = [];
-
-        // Seed a couple initial ambient bubbles matching the reference aesthetic
-        function seedInitialBubbles() {
-            bubbles.push(new AsciiBubble(width * 0.56, height * 0.34, 'o'));
-            bubbles.push(new AsciiBubble(width * 0.86, height * 0.14, 'o'));
-            bubbles.push(new AsciiBubble(width * 0.86, height * 0.22, 'o'));
-        }
-        setTimeout(seedInitialBubbles, 80);
-
-        function dropFoodAt(x, y) {
-            const count = 2 + Math.floor(Math.random() * 2);
-            for (let i = 0; i < count; i++) {
-                const fx = Math.max(20, Math.min(width - 20, x + (Math.random() - 0.5) * 24));
-                const fy = Math.max(22, Math.min(height - 30, y + (Math.random() - 0.5) * 14));
-                foods.push(new FoodPellet(fx, fy));
-            }
-            audio.playFeedDrop();
-            hideHint();
-        }
-
-        function triggerGlassKnock(x, y) {
-            // Visual glass ripple ring
-            const ring = document.createElement('div');
-            ring.className = 'knock-ring';
-            ring.style.left = `${x}px`;
-            ring.style.top = `${y}px`;
-            prismEl.appendChild(ring);
-            setTimeout(() => ring.remove(), 800);
-
-            // Startle fish & release startled bubbles
-            for (let fish of fishes) {
-                fish.startle(x, y);
-                bubbles.push(new AsciiBubble(fish.x, fish.y - 6, 'o'));
-            }
-            audio.playGlassKnock();
-            hideHint();
-        }
-
-        let hintDismissed = false;
-        function hideHint() {
-            if (hintDismissed) return;
-            hintDismissed = true;
-            const hint = document.getElementById('hintText');
-            if (hint) hint.style.opacity = '0';
-        }
-
-        // Subtle CRT Scanline / Optical Hologram Grid Overlay inside the tank
-        function drawHologramScanlines() {
-            ctx.save();
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.018)';
-            for (let y = 0; y < height; y += 3) {
-                ctx.fillRect(0, y, width, 1);
-            }
-            ctx.restore();
-        }
-
-        function renderLoop(timestamp) {
-            ctx.clearRect(0, 0, width, height);
-
-            // 1. Subtle Hologram Scanlines
-            drawHologramScanlines();
-
-            // 2. Swaying ASCII Seaweed along bottom
-            for (let weed of seaweeds) {
-                weed.draw(ctx, timestamp, activePalette);
-            }
-
-            // 3. Falling ASCII Food Pellets
-            foods = foods.filter(f => {
-                const alive = f.update();
-                if (alive) f.draw(ctx, activePalette);
-                return alive;
-            });
-
-            // 4. Rising ASCII Bubbles
-            bubbles = bubbles.filter(b => {
-                const alive = b.update();
-                if (alive) b.draw(ctx, activePalette);
-                return alive;
-            });
-
-            // 5. Swimming Holographic ASCII Fish
-            for (let fish of fishes) {
-                fish.update(foods, fishes);
-                fish.draw(ctx, activePalette);
-            }
-
-            requestAnimationFrame(renderLoop);
-        }
-
-        // ============================================================================
-        // INTERACTIVE EVENTS (SINGLE TAP = FEED, DOUBLE TAP = KNOCK)
-        // ============================================================================
-        let clickTimer = null;
-        let lastTapTime = 0;
-
-        prismEl.addEventListener('pointerdown', (e) => {
-            const rect = prismEl.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const now = performance.now();
-
-            if (now - lastTapTime < 280) {
-                // Double-tap / double-click detected -> Knock on glass!
-                clearTimeout(clickTimer);
-                clickTimer = null;
-                lastTapTime = 0;
-                triggerGlassKnock(x, y);
-            } else {
-                lastTapTime = now;
-                clickTimer = setTimeout(() => {
-                    dropFoodAt(x, y);
-                    clickTimer = null;
-                }, 230);
-            }
+      fishes.forEach((fish) => {
+        let targetFood = null;
+        let minDist = 140;
+        foods.forEach((fd) => {
+          const d = Math.hypot(fd.x - fish.x, fd.y - fish.y);
+          if (d < minDist) {
+            minDist = d;
+            targetFood = fd;
+          }
         });
 
-        // Subtle 3D tilt parallax on mouse move in Desk Gadget Mode
-        window.addEventListener('mousemove', (e) => {
-            if (isFullscreenGlass) {
-                prismEl.style.transform = '';
-                return;
-            }
-            const nx = (e.clientX / window.innerWidth - 0.5) * 2;
-            const ny = (e.clientY / window.innerHeight - 0.5) * 2;
-            prismEl.style.transform = `perspective(900px) rotateY(${nx * 4.5}deg) rotateX(${-ny * 3.5}deg)`;
-        });
+        if (targetFood) {
+          const dx = targetFood.x - fish.x;
+          const dy = targetFood.y - fish.y;
+          fish.dir = dx >= 0 ? 1 : -1;
+          fish.vx += (dx / (minDist || 1)) * 0.08;
+          fish.vy += (dy / (minDist || 1)) * 0.06;
+          fish.vx = Math.max(-1.8, Math.min(1.8, fish.vx));
+          fish.vy = Math.max(-1.2, Math.min(1.2, fish.vy));
 
-        // ============================================================================
-        // FLOATING CONTROL PILL BINDINGS
-        // ============================================================================
-        const MAX_FISH_COUNT = 20;
-        let toastTimeout = null;
-
-        function showStatusFlash(message) {
-            const hint = document.getElementById('hintText');
-            if (!hint) return;
-            hint.textContent = message;
-            hint.style.opacity = '1';
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                hint.style.opacity = '0';
-            }, 2200);
+          if (minDist < 18) {
+            const idx = foods.indexOf(targetFood);
+            if (idx > -1) foods.splice(idx, 1);
+            fish.happyTimer = 45;
+            spawnBubble(fish.x + fish.dir * 12, fish.y - 6, "o");
+            playBeep(860, 0.05, "sine");
+          }
+        } else {
+          const targetSpeed = fish.dir * 0.75;
+          fish.vx += (targetSpeed - fish.vx) * 0.03;
+          fish.vy *= 0.96;
+          if (Math.random() < 0.004) {
+            fish.dir *= -1;
+          }
         }
 
-        function bindInstantButton(el, handler) {
-            if (!el) return;
-            let lastTrigger = 0;
-            const trigger = (e) => {
-                e.stopPropagation();
-                const now = performance.now();
-                if (now - lastTrigger < 140) return;
-                lastTrigger = now;
-                handler(e);
-            };
-            el.addEventListener('pointerdown', trigger);
-            el.addEventListener('click', trigger);
+        fish.x += fish.vx;
+        fish.y += fish.vy + Math.sin(time * 0.003 + fish.bobOffset) * 0.22;
+
+        const margin = 44;
+        if (fish.x < margin) {
+          fish.x = margin;
+          fish.dir = 1;
+          fish.vx = Math.abs(fish.vx);
+        } else if (fish.x > w - margin) {
+          fish.x = w - margin;
+          fish.dir = -1;
+          fish.vx = -Math.abs(fish.vx);
         }
 
-        bindInstantButton(document.getElementById('btnFeed'), () => {
-            const dropX = width * (0.25 + Math.random() * 0.5);
-            const dropY = height * (0.14 + Math.random() * 0.14);
-            dropFoodAt(dropX, dropY);
-        });
+        if (fish.y < 32) fish.y = 32;
+        if (fish.y > h - 42) fish.y = h - 42;
 
-        const fishCountLabel = document.getElementById('fishCountLabel');
-        function updateFishCountUI() {
-            fishCountLabel.textContent = `(${fishes.length}/${MAX_FISH_COUNT})`;
+        if (Math.random() < 0.006) {
+          spawnBubble(fish.x + fish.dir * 16, fish.y - 4);
         }
 
-        bindInstantButton(document.getElementById('btnAddFish'), () => {
-            if (fishes.length >= MAX_FISH_COUNT) {
-                audio.playGlassKnock();
-                showStatusFlash(`max (${MAX_FISH_COUNT}/${MAX_FISH_COUNT})`);
-                return;
-            }
-            const spawnX = width * (0.24 + Math.random() * 0.52);
-            const spawnY = height * (0.24 + Math.random() * 0.48);
-            const newFish = new AsciiFish(true, spawnX, spawnY);
-            fishes.push(newFish);
+        if (fish.happyTimer > 0) fish.happyTimer--;
 
-            // Spawn a celebratory burst of ASCII bubbles ('o', '°', 'O')
-            bubbles.push(new AsciiBubble(spawnX, spawnY - 4, '°'));
-            bubbles.push(new AsciiBubble(spawnX - 8, spawnY - 10, 'o'));
-            bubbles.push(new AsciiBubble(spawnX + 8, spawnY - 14, 'O'));
+        const isHappy = fish.happyTimer > 0;
+        const text =
+          fish.dir === 1
+            ? isHappy
+              ? fish.sprite.happyRight
+              : fish.sprite.right
+            : isHappy
+            ? fish.sprite.happyLeft
+            : fish.sprite.left;
 
-            audio.playBubblePop();
-            updateFishCountUI();
-            showStatusFlash(`add 1 fish • so far ${fishes.length}/${MAX_FISH_COUNT} 条`);
-        });
+        ctx.save();
+        ctx.font = `bold ${Math.round(16 * fish.scale)}px 'Courier New', monospace`;
+        ctx.fillStyle = theme.fish;
+        ctx.shadowColor = theme.glow;
+        ctx.shadowBlur = 12;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, fish.x, fish.y);
+        ctx.restore();
+      });
 
-        bindInstantButton(document.getElementById('btnRemoveFish'), () => {
-            if (fishes.length <= 1) {
-                showStatusFlash('at least 1 fish (1/20)');
-                return;
-            }
-            const removed = fishes.pop();
-            if (removed) {
-                bubbles.push(new AsciiBubble(removed.x, removed.y, 'o'));
-            }
-            audio.playBubblePop();
-            updateFishCountUI();
-            showStatusFlash(`reduce 1 fish •  ${fishes.length}/${MAX_FISH_COUNT} fish`);
-        });
+      ctx.save();
+      ctx.font = "bold 13px 'Courier New', monospace";
+      ctx.fillStyle = theme.bubble;
+      ctx.shadowColor = theme.glow;
+      ctx.shadowBlur = 8;
+      ctx.textAlign = "center";
 
-        // View Mode Toggle: Desk Gadget vs Fullscreen Glass
-        const btnViewMode = document.getElementById('btnViewMode');
-        const viewModeText = document.getElementById('viewModeText');
-        const gadgetWrapper = document.getElementById('gadgetWrapper');
-        const deskSurface = document.getElementById('deskSurface');
+      for (let i = bubbles.length - 1; i >= 0; i--) {
+        const b = bubbles[i];
+        b.y -= b.vy;
+        b.x += Math.sin(time * 0.006 + b.wobble) * 0.35;
+        ctx.fillText(b.char, b.x, b.y);
+        if (b.y < 14) {
+          bubbles.splice(i, 1);
+        }
+      }
+      ctx.restore();
 
-        bindInstantButton(btnViewMode, () => {
-            isFullscreenGlass = !isFullscreenGlass;
-            if (isFullscreenGlass) {
-                document.body.classList.remove('stage-desk');
-                document.body.classList.add('stage-fullscreen');
-                gadgetWrapper.classList.add('fullscreen-mode');
-                deskSurface.style.opacity = '0';
-                viewModeText.textContent = 'Acrylic Stand';
-                prismEl.style.transform = '';
-            } else {
-                document.body.classList.remove('stage-fullscreen');
-                document.body.classList.add('stage-desk');
-                gadgetWrapper.classList.remove('fullscreen-mode');
-                deskSurface.style.opacity = '1';
-                viewModeText.textContent = 'Fullscreen Glass';
-            }
-            setTimeout(updateCanvasBounds, 60);
-            setTimeout(updateCanvasBounds, 320);
-        });
+      requestAnimationFrame(updateAndDraw);
+    }
 
-        // Color Palette Swatches
-        const colorDots = document.querySelectorAll('.color-dot');
-        const statusLed = document.getElementById('statusLed');
-        const feedIcon = document.getElementById('feedIcon');
-
-        colorDots.forEach(dot => {
-            bindInstantButton(dot, () => {
-                colorDots.forEach(d => d.classList.remove('active'));
-                dot.classList.add('active');
-                const key = dot.getAttribute('data-palette');
-                activePalette = PALETTES[key];
-
-                // Update CSS theme variables & UI accents
-                document.documentElement.style.setProperty('--fish-color', activePalette.fish);
-                document.documentElement.style.setProperty('--fish-glow', activePalette.fishGlow);
-                document.documentElement.style.setProperty('--seaweed-color', activePalette.seaweed);
-
-                statusLed.style.backgroundColor = activePalette.fish;
-                statusLed.style.boxShadow = `0 0 8px ${activePalette.fish}`;
-                feedIcon.style.color = activePalette.fish;
-                fishCountLabel.style.color = activePalette.fish;
-                audio.playBubblePop();
-            });
-        });
-
-        // Sound Toggle
-        const btnSound = document.getElementById('btnSound');
-        const iconSoundOn = document.getElementById('iconSoundOn');
-        const iconSoundOff = document.getElementById('iconSoundOff');
-
-        bindInstantButton(btnSound, () => {
-            audio.enabled = !audio.enabled;
-            if (audio.enabled) {
-                iconSoundOn.classList.remove('hidden');
-                iconSoundOff.classList.add('hidden');
-                audio.playBubblePop();
-            } else {
-                iconSoundOn.classList.add('hidden');
-                iconSoundOff.classList.remove('hidden');
-            }
-        });
-
-        // Start animation loop on window load
-        window.onload = function () {
-            updateCanvasBounds();
-            updateFishCountUI();
-            requestAnimationFrame(renderLoop);
-        };
-    </script>
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    const initRect = glassBox.getBoundingClientRect();
+    fishes.push(createFish(initRect.width * 0.5, initRect.height * 0.45, 0));
+    updateCounter();
+    spawnBubble(initRect.width * 0.55, initRect.height * 0.35, "o");
+    requestAnimationFrame(updateAndDraw);
+  </script>
 </body>
 </html>
