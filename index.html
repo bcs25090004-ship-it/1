@@ -22,134 +22,263 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at 50% 40%, #2a3132 0%, #15191a 100%);
       font-family: "Courier New", Courier, monospace;
-      color: #6df7ff;
+      background: #1c2224;
+      position: relative;
     }
 
-    .desk-mat {
+    /* 工作室暖调木桌与深灰切割垫景深背景 */
+    .studio-backdrop {
+      position: fixed;
+      inset: -20px;
+      background:
+        radial-gradient(ellipse at 50% 18%, rgba(212, 175, 132, 0.32) 0%, rgba(110, 88, 66, 0.14) 38%, transparent 65%),
+        radial-gradient(circle at 50% 62%, #363e40 0%, #1d2224 72%, #111416 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* 透视感切割垫网格与刻度线 */
+    .cutting-mat {
+      position: fixed;
+      left: -15%;
+      right: -15%;
+      bottom: -8%;
+      height: 64%;
+      background-color: rgba(42, 48, 50, 0.85);
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.11) 1.5px, transparent 1.5px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.11) 1.5px, transparent 1.5px),
+        linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 90px 90px, 90px 90px, 18px 18px, 18px 18px;
+      border-top: 2px solid rgba(255, 255, 255, 0.16);
+      transform: perspective(680px) rotateX(48deg);
+      transform-origin: bottom center;
+      box-shadow: inset 0 24px 50px rgba(0, 0, 0, 0.55);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* 桌面环境柔和暗角与散景光斑 */
+    .ambient-vignette {
       position: fixed;
       inset: 0;
-      background-image:
-        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-      background-size: 48px 48px;
+      background: radial-gradient(circle at 50% 45%, transparent 45%, rgba(0, 0, 0, 0.58) 100%);
       pointer-events: none;
-      z-index: 0;
+      z-index: 2;
     }
 
-    body.fullscreen-mode .desk-mat,
-    body.fullscreen-mode .stand-base,
-    body.fullscreen-mode .stand-legs {
+    /* 全屏纯享模式切换 */
+    body.fullscreen-mode .cutting-mat,
+    body.fullscreen-mode .stand-unit,
+    body.fullscreen-mode .stand-shadow {
       display: none;
     }
 
+    body.fullscreen-mode .prism-assembly {
+      transform: translateY(-10px);
+    }
+
     body.fullscreen-mode .prism-glass {
-      width: 94vw;
-      height: 82vh;
+      width: min(92vw, 560px);
+      height: min(74vh, 620px);
       border-radius: 16px;
     }
 
-    .gadget-wrapper {
+    /* 整体摆件容器 */
+    .prism-assembly {
       position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       z-index: 10;
-      transform: translateY(-18px);
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
     }
 
+    /* 3D 透明亚克力厚棱镜方块 */
     .prism-glass {
       position: relative;
-      width: min(320px, 84vw);
-      height: min(300px, 48vh);
+      width: min(310px, 82vw);
+      height: min(305px, 46vh);
       background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.14) 0%,
-        rgba(180, 235, 245, 0.05) 45%,
-        rgba(255, 255, 255, 0.12) 100%
+        145deg,
+        rgba(255, 255, 255, 0.16) 0%,
+        rgba(170, 235, 248, 0.05) 38%,
+        rgba(14, 24, 28, 0.38) 78%,
+        rgba(255, 255, 255, 0.14) 100%
       );
-      border-top: 3px solid rgba(255, 255, 255, 0.55);
-      border-left: 3px solid rgba(255, 255, 255, 0.45);
-      border-right: 2px solid rgba(255, 255, 255, 0.25);
+      /* 模拟真实亚克力板厚度的多层高光与折射边 */
+      border-top: 5px solid rgba(255, 255, 255, 0.62);
+      border-left: 5px solid rgba(255, 255, 255, 0.45);
+      border-right: 4px solid rgba(215, 245, 255, 0.34);
       border-bottom: none;
-      border-radius: 8px 8px 0 0;
+      border-radius: 7px 7px 0 0;
       box-shadow:
-        inset 6px 6px 16px rgba(255, 255, 255, 0.18),
-        inset -6px -4px 14px rgba(0, 220, 255, 0.1),
-        0 10px 30px rgba(0, 0, 0, 0.45);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
+        inset 10px 10px 22px rgba(255, 255, 255, 0.2),
+        inset -10px -8px 20px rgba(0, 215, 255, 0.12),
+        inset 0 0 36px rgba(0, 185, 225, 0.08),
+        0 14px 34px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       overflow: hidden;
       cursor: pointer;
       touch-action: manipulation;
     }
 
+    /* 玻璃内部斜向镜面反光与内部折射竖线 */
     .prism-reflection {
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        115deg,
-        rgba(255, 255, 255, 0.22) 0%,
-        rgba(255, 255, 255, 0.04) 28%,
-        transparent 30%,
-        transparent 75%,
-        rgba(255, 255, 255, 0.08) 100%
-      );
+      background:
+        linear-gradient(
+          118deg,
+          rgba(255, 255, 255, 0.26) 0%,
+          rgba(255, 255, 255, 0.07) 26%,
+          transparent 28%,
+          transparent 76%,
+          rgba(255, 255, 255, 0.12) 100%
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.18) 0px,
+          rgba(255, 255, 255, 0.18) 2px,
+          transparent 2px,
+          transparent calc(100% - 2px),
+          rgba(255, 255, 255, 0.16) calc(100% - 2px)
+        );
       pointer-events: none;
-      z-index: 5;
+      z-index: 6;
+    }
+
+    /* 底座投射到玻璃底部的全息光源泛光 */
+    .bottom-led-glow {
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      bottom: -8px;
+      height: 24px;
+      background: radial-gradient(ellipse at center, var(--led-color, rgba(0, 225, 255, 0.55)) 0%, transparent 72%);
+      filter: blur(6px);
+      pointer-events: none;
+      z-index: 4;
     }
 
     canvas#tankCanvas {
       display: block;
       width: 100%;
       height: 100%;
+      position: relative;
+      z-index: 5;
     }
 
-    .stand-base {
-      width: min(356px, 92vw);
-      height: 76px;
-      background: linear-gradient(180deg, #98bdb9 0%, #83a8a4 100%);
-      border-radius: 8px;
+    /* 3D 打印莫兰迪薄荷绿底座组件 */
+    .stand-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      position: relative;
+      z-index: 12;
+    }
+
+    /* 底座顶盖 */
+    .stand-lid {
+      width: min(358px, 92vw);
+      height: 18px;
+      background: linear-gradient(180deg, #a7cbc7 0%, #92b7b3 100%);
+      border-radius: 7px 7px 2px 2px;
       box-shadow:
-        inset 0 2px 3px rgba(255, 255, 255, 0.45),
-        inset 0 -4px 8px rgba(0, 0, 0, 0.2),
-        0 14px 24px rgba(0, 0, 0, 0.5);
+        inset 0 2px 2px rgba(255, 255, 255, 0.55),
+        0 2px 4px rgba(0, 0, 0, 0.25);
+      position: relative;
+    }
+
+    /* 底座插槽微光缝隙 */
+    .stand-lid::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(312px, 82vw);
+      height: 3px;
+      background: var(--led-color, #4ef2ff);
+      box-shadow: 0 0 10px var(--led-color, #4ef2ff);
+      opacity: 0.85;
+    }
+
+    /* 底座主机身 */
+    .stand-body {
+      width: min(352px, 90vw);
+      height: 62px;
+      background: linear-gradient(180deg, #8bb0ac 0%, #789d99 100%);
+      border-radius: 2px 2px 9px 9px;
+      box-shadow:
+        inset 0 3px 5px rgba(25, 42, 40, 0.28),
+        inset 2px 0 3px rgba(255, 255, 255, 0.22),
+        inset -2px 0 4px rgba(0, 0, 0, 0.18),
+        0 14px 26px rgba(0, 0, 0, 0.52);
       position: relative;
       display: flex;
       align-items: center;
-      justify-content: center;
-      pointer-events: none;
+      justify-content: flex-end;
+      padding-right: 18px;
     }
 
-    .stand-base::before {
-      content: "";
-      position: absolute;
-      top: 14px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: rgba(35, 55, 53, 0.35);
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    /* 右侧状态指示微光小灯 */
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--led-color, #5ceeff);
+      box-shadow: 0 0 8px var(--led-color, #5ceeff);
+      opacity: 0.9;
     }
 
+    /* 两条立体前支脚 */
     .stand-legs {
-      width: min(260px, 68vw);
+      width: min(256px, 66vw);
       display: flex;
       justify-content: space-between;
-      pointer-events: none;
+      margin-top: -1px;
     }
 
     .leg {
       width: 54px;
       height: 54px;
-      background: linear-gradient(180deg, #799e9a 0%, #688b87 100%);
-      border-radius: 0 0 6px 6px;
+      background: linear-gradient(180deg, #779c98 0%, #638682 100%);
+      border-radius: 0 0 7px 7px;
       box-shadow:
-        inset 2px 0 3px rgba(255, 255, 255, 0.2),
-        0 12px 18px rgba(0, 0, 0, 0.55);
+        inset 3px 0 4px rgba(255, 255, 255, 0.18),
+        inset -3px 0 5px rgba(0, 0, 0, 0.22),
+        0 14px 20px rgba(0, 0, 0, 0.6);
     }
 
+    /* 桌面投影 */
+    .stand-shadow {
+      width: min(340px, 86vw);
+      height: 22px;
+      background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.68) 0%, transparent 72%);
+      margin-top: -8px;
+      pointer-events: none;
+      z-index: 9;
+    }
+
+    /* 顶部极简提示文字 */
+    .hint-text {
+      position: fixed;
+      top: 16px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.52);
+      letter-spacing: 0.6px;
+      pointer-events: none;
+      z-index: 20;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    /* 底部悬浮控制栏 */
     .controls-bar {
       position: fixed;
       bottom: max(20px, env(safe-area-inset-bottom, 20px));
@@ -160,12 +289,12 @@
       justify-content: center;
       gap: 10px;
       padding: 10px 16px;
-      background: rgba(20, 28, 30, 0.82);
+      background: rgba(18, 25, 27, 0.78);
       border: 1px solid rgba(109, 247, 255, 0.28);
       border-radius: 999px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
       z-index: 999;
       width: max-content;
       max-width: 95vw;
@@ -173,10 +302,10 @@
 
     .btn {
       background: rgba(109, 247, 255, 0.12);
-      color: #b8fbff;
+      color: #c4fcff;
       border: 1px solid rgba(109, 247, 255, 0.35);
       border-radius: 999px;
-      padding: 7px 14px;
+      padding: 7px 15px;
       font-family: inherit;
       font-size: 13px;
       font-weight: bold;
@@ -189,32 +318,33 @@
       transform: scale(0.93);
       background: rgba(109, 247, 255, 0.3);
     }
-
-    .hint-text {
-      position: fixed;
-      top: 16px;
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.5);
-      letter-spacing: 0.5px;
-      pointer-events: none;
-      z-index: 20;
-    }
   </style>
 </head>
 <body>
-  <div class="desk-mat"></div>
+  <div class="studio-backdrop"></div>
+  <div class="cutting-mat"></div>
+  <div class="ambient-vignette"></div>
+
   <div class="hint-text">Tap glass to feed · Double-tap to knock</div>
 
-  <div class="gadget-wrapper">
+  <div class="prism-assembly">
     <div class="prism-glass" id="glassBox">
       <canvas id="tankCanvas"></canvas>
+      <div class="bottom-led-glow"></div>
       <div class="prism-reflection"></div>
     </div>
-    <div class="stand-base"></div>
-    <div class="stand-legs">
-      <div class="leg"></div>
-      <div class="leg"></div>
+
+    <div class="stand-unit">
+      <div class="stand-lid"></div>
+      <div class="stand-body">
+        <div class="status-dot"></div>
+      </div>
+      <div class="stand-legs">
+        <div class="leg"></div>
+        <div class="leg"></div>
+      </div>
     </div>
+    <div class="stand-shadow"></div>
   </div>
 
   <div class="controls-bar">
@@ -233,10 +363,10 @@
     let audioCtx = null;
 
     const themes = [
-      { fish: "#5ceeff", glow: "#00d9ff", weed: "#43f59b", bubble: "#9ff6ff", food: "#ffe66d" },
-      { fish: "#6bff95", glow: "#1aff66", weed: "#29b677", bubble: "#b8ffd0", food: "#fff07c" },
-      { fish: "#ffbe55", glow: "#ff9900", weed: "#5ce09b", bubble: "#ffe2b0", food: "#70f3ff" },
-      { fish: "#ff7be5", glow: "#ff33cc", weed: "#4be8b0", bubble: "#ffc7f3", food: "#ffe66d" }
+      { fish: "#5ceeff", glow: "#00d9ff", weed: "#43f59b", bubble: "#9ff6ff", food: "#ffe66d", led: "rgba(0, 225, 255, 0.65)" },
+      { fish: "#6bff95", glow: "#1aff66", weed: "#29b677", bubble: "#b8ffd0", food: "#fff07c", led: "rgba(38, 255, 115, 0.6)" },
+      { fish: "#ffbe55", glow: "#ff9900", weed: "#5ce09b", bubble: "#ffe2b0", food: "#70f3ff", led: "rgba(255, 175, 45, 0.6)" },
+      { fish: "#ff7be5", glow: "#ff33cc", weed: "#4be8b0", bubble: "#ffc7f3", food: "#ffe66d", led: "rgba(255, 75, 215, 0.6)" }
     ];
     let themeIndex = 0;
 
@@ -252,6 +382,10 @@
     let foods = [];
     let weeds = [];
 
+    function applyThemeLed() {
+      document.documentElement.style.setProperty("--led-color", themes[themeIndex].led);
+    }
+
     function resizeCanvas() {
       const rect = glassBox.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
@@ -263,10 +397,10 @@
 
     function initWeeds(w, h) {
       weeds = [];
-      const count = Math.max(3, Math.floor(w / 75));
+      const count = Math.max(3, Math.floor(w / 72));
       for (let i = 0; i < count; i++) {
         weeds.push({
-          x: (w / (count + 1)) * (i + 1) + (Math.random() - 0.5) * 18,
+          x: (w / (count + 1)) * (i + 1) + (Math.random() - 0.5) * 16,
           segments: 4 + Math.floor(Math.random() * 3),
           phase: Math.random() * Math.PI * 2
         });
@@ -333,6 +467,7 @@
     bindSingleAction(document.getElementById("btnFeed"), () => dropFood(), 200);
     bindSingleAction(document.getElementById("btnColor"), () => {
       themeIndex = (themeIndex + 1) % themes.length;
+      applyThemeLed();
       playBeep(660, 0.06, "sine");
     }, 200);
     bindSingleAction(document.getElementById("btnSound"), (e) => {
@@ -377,7 +512,7 @@
       ctx.font = "bold 16px 'Courier New', monospace";
       ctx.fillStyle = theme.weed;
       ctx.shadowColor = theme.weed;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 10;
       ctx.textAlign = "center";
 
       weeds.forEach((weed) => {
@@ -394,7 +529,7 @@
       ctx.font = "bold 14px 'Courier New', monospace";
       ctx.fillStyle = theme.food;
       ctx.shadowColor = theme.food;
-      ctx.shadowBlur = 6;
+      ctx.shadowBlur = 8;
       ctx.textAlign = "center";
 
       for (let i = foods.length - 1; i >= 0; i--) {
@@ -477,7 +612,7 @@
       ctx.font = "bold 17px 'Courier New', monospace";
       ctx.fillStyle = theme.fish;
       ctx.shadowColor = theme.glow;
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 14;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(text, fish.x, fish.y);
@@ -488,7 +623,7 @@
       ctx.font = "bold 13px 'Courier New', monospace";
       ctx.fillStyle = theme.bubble;
       ctx.shadowColor = theme.glow;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 10;
       ctx.textAlign = "center";
 
       for (let i = bubbles.length - 1; i >= 0; i--) {
@@ -506,6 +641,7 @@
     }
 
     window.addEventListener("resize", resizeCanvas);
+    applyThemeLed();
     resizeCanvas();
     const initRect = glassBox.getBoundingClientRect();
     fish = {
